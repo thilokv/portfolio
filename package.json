@@ -1,12 +1,12 @@
 {
-  "name": "sonika-portfolio",
+  "name": "thilok-portfolio",
   "version": "1.0.0",
-  "description": "Premium personal portfolio website for Sonika",
+  "description": "Premium personal portfolio website for Thilok",
   "main": "index.html",
   "scripts": {
     "dev": "npx -y browser-sync start --server --files \"*.html, *.css, *.js\""
   },
   "keywords": [],
-  "author": "Sonika",
+  "author": "Thilok",
   "license": "ISC"
 }

@@ -1,7 +1,7 @@
 /**
  * =========================================
  * CORE LOGIC & INTERACTIVE SUITE
- * Portfolio: Sonika
+ * Portfolio: Thilok
  * =========================================
  */
 
