@@ -852,7 +852,7 @@ export const parentMessages = pgTable(
       .notNull()
       .references(() => children.id),
     kind: messageKindEnum("kind").notNull(),
-    direction: varchar("direction", { length: 12 }).notNull(), // to_guardian | from_guardian
+    direction: varchar("direction", { length: 16 }).notNull(), // to_guardian | from_guardian
     senderStaffId: uuid("sender_staff_id").references(() => staff.id),
     senderGuardianId: uuid("sender_guardian_id").references(() => guardians.id),
     subject: text("subject").notNull(),

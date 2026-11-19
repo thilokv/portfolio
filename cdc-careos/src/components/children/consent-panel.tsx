@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/forms/form-field";
 import { useActionForm } from "@/components/forms/use-action-form";
-import { useT, useI18n } from "@/i18n/client";
+import { useI18n } from "@/i18n/client";
 import { CONSENT_STATUSES, CONSENT_TYPES } from "@/lib/constants";
 import { formatDate, isoDateIST } from "@/lib/dates";
 import { consentSchema, type ConsentInput } from "@/lib/validation/children";

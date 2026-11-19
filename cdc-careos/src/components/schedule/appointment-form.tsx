@@ -1,5 +1,4 @@
 "use client";
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -47,10 +46,7 @@ export function AppointmentForm({
   const team = (child?.team ?? []).filter((m) => !restrictToStaffId || m.staffId === restrictToStaffId);
   const uniqueTeam = [...new Map(team.map((m) => [m.staffId, m])).values()];
   const member = uniqueTeam.find((m) => m.staffId === staffId);
-  const serviceOpts = useMemo(
-    () => services.filter((s) => !member || member.roles.some((r) => SERVICE_ROLES[s.code as ServiceCode].includes(r as StaffRole))),
-    [services, member],
-  );
+  const serviceOpts = services.filter((s) => !member || member.roles.some((r) => SERVICE_ROLES[s.code as ServiceCode].includes(r as StaffRole)));
 
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
