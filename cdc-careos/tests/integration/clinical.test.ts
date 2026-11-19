@@ -113,7 +113,7 @@ describe("individual development plans", () => {
     await expect(withOrg(ctx(), (tx) => addGoal(tx, org.actors.speech, { ...goal, responsibleStaffId: org.actors.ot.staffId }))).rejects.toThrow("errors.assigneeNotOnTeam");
     goalId = await withOrg(ctx(), (tx) => addGoal(tx, org.actors.speech, goal));
     // Another therapist on the team cannot change a goal they are not responsible for.
-    const { planId: _p, ...fields } = goal;
+    const fields = { ...goal, planId: undefined };
     await expect(withOrg(ctx(), (tx) => reviseGoal(tx, org.actors.speech2, { ...fields, goalId, revisionReason: "x" }))).rejects.toThrow("errors.notYourRecord");
     const v2 = await withOrg(ctx(), (tx) => reviseGoal(tx, org.actors.speech, { ...fields, goalId, target: "9/10", revisionReason: "Baseline re-measured" }));
     expect(v2.version).toBe(2);
