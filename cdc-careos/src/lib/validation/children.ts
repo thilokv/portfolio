@@ -47,7 +47,7 @@ export type RegisterChildInput = z.infer<typeof registerChildSchema>;
 
 export const updateChildSchema = childProfileSchema.extend({
   id: uuid,
-  status: z.enum(CHILD_STATUSES).refine((s) => s !== "archived", "validation.invalid"),
+  status: z.enum(["active", "waitlisted", "on_hold", "discharged"]),
 });
 export type UpdateChildInput = z.infer<typeof updateChildSchema>;
 

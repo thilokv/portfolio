@@ -144,3 +144,54 @@ export const ALLOWED_UPLOAD_TYPES: Record<string, string> = {
   "image/webp": "webp",
 };
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Service-specific session documentation fields (all optional — nothing is
+ * mandatory for every child). Labels live under `workflow.*` in i18n.
+ */
+export const WORKFLOW_FIELDS: Record<ServiceCode, { key: string; label: string; hint?: string }[]> = {
+  speech_therapy: [
+    { key: "communication", label: "workflow.speech.communication" },
+    { key: "receptive", label: "workflow.speech.receptive" },
+    { key: "expressive", label: "workflow.speech.expressive" },
+    { key: "functional", label: "workflow.speech.functional" },
+    { key: "play", label: "workflow.speech.play" },
+  ],
+  occupational_therapy: [
+    { key: "fineMotor", label: "workflow.ot.fineMotor" },
+    { key: "sensory", label: "workflow.ot.sensory" },
+    { key: "selfCare", label: "workflow.ot.selfCare" },
+    { key: "dailyLiving", label: "workflow.ot.dailyLiving" },
+  ],
+  special_education: [
+    { key: "matching", label: "workflow.sped.matching" },
+    { key: "sorting", label: "workflow.sped.sorting" },
+    { key: "attention", label: "workflow.sped.attention" },
+    { key: "earlyLearning", label: "workflow.sped.earlyLearning" },
+    { key: "schoolReadiness", label: "workflow.sped.schoolReadiness" },
+  ],
+  behaviour_support: [
+    { key: "antecedent", label: "workflow.behaviour.antecedent" },
+    { key: "behaviour", label: "workflow.behaviour.behaviour" },
+    { key: "context", label: "workflow.behaviour.context" },
+    { key: "factors", label: "workflow.behaviour.factors", hint: "workflow.behaviour.factorsHint" },
+    { key: "strategies", label: "workflow.behaviour.strategies" },
+    { key: "outcome", label: "workflow.behaviour.outcome" },
+  ],
+  physiotherapy: [
+    { key: "mobility", label: "workflow.physio.mobility" },
+    { key: "balance", label: "workflow.physio.balance" },
+    { key: "posture", label: "workflow.physio.posture" },
+    { key: "grossMotor", label: "workflow.physio.grossMotor" },
+  ],
+  early_intervention: [
+    { key: "activities", label: "workflow.ei.activities" },
+    { key: "parentParticipation", label: "workflow.ei.parentParticipation" },
+    { key: "functionalPlay", label: "workflow.ei.functionalPlay" },
+  ],
+  psychology: [
+    { key: "documentation", label: "workflow.psych.documentation" },
+    { key: "reportStatus", label: "workflow.psych.reportStatus" },
+    { key: "reviewNotes", label: "workflow.psych.reviewNotes" },
+  ],
+};

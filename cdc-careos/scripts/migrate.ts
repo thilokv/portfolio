@@ -31,7 +31,7 @@ async function main() {
       -- audit log is append-only
       REVOKE UPDATE ON audit_logs FROM ${appRole};
       -- the only tables where rows may be removed by the application
-      GRANT DELETE ON auth_sessions, rate_limit_events, session_goals, staff_roles,
+      GRANT DELETE ON auth_sessions, rate_limit_events, session_goals, goal_observations, assessment_domains, staff_roles,
                       staff_availability, password_reset_tokens TO ${appRole};
       -- the drizzle bookkeeping schema is not needed at runtime
       REVOKE ALL ON SCHEMA drizzle FROM ${appRole};

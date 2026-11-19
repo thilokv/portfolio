@@ -76,7 +76,7 @@ export function StatCard({
     warning: "bg-warning-50 text-warning-600",
   }[tone];
   return (
-    <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-[var(--shadow-card)] animate-slide-up">
+    <div className="flex flex-col rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-[var(--shadow-card)] animate-slide-up">
       <div className="flex items-start justify-between gap-2">
         <p className="text-[13px] font-medium leading-snug text-muted">{label}</p>
         {Icon && (
@@ -85,7 +85,7 @@ export function StatCard({
           </span>
         )}
       </div>
-      <p className="mt-2 text-[28px] font-bold leading-none tracking-tight text-ink tabular-nums">{value}</p>
+      <p className="mt-auto pt-2 text-[28px] font-bold leading-none tracking-tight text-ink tabular-nums">{value}</p>
       {hint && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
     </div>
   );

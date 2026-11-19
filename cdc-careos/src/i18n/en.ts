@@ -162,6 +162,8 @@ const en = {
     notFoundTitle: "Page not found",
     goHome: "Go to dashboard",
     invalidStatus: "This action is not available for the record's current status.",
+    staffUnavailable: "The therapist is marked unavailable on this date.",
+    childInactive: "Appointments can only be scheduled for active children.",
     assigneeNotOnTeam: "The selected professional is not on this child's care team.",
   },
   enum: {
@@ -313,7 +315,7 @@ const en = {
     noReviews: "No goal or plan reviews due in the next 30 days.",
     available: "Available",
     onLeave: "Not available",
-    appointmentsCount: "{n} appointments",
+    appointmentsCount: "{n} booked",
     scopeAll: "Figures cover all children at the center.",
     scopeMine: "Figures cover children on your care team.",
     reviewsDue: "Reviews due",
