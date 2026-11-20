@@ -4,6 +4,7 @@ import { Logo } from "@/components/brand/logo";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { getActor } from "@/server/auth/actor";
 import { getT } from "@/i18n/server";
+import { isDemoMode } from "@/lib/runtime-env";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const actor = await getActor();
@@ -33,7 +34,13 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           <LanguageSwitcher />
         </div>
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-10 animate-slide-up">{children}</div>
-        <p className="text-center text-xs text-muted">{t("app.fictionalDataNotice")}</p>
+        {isDemoMode() ? (
+          <p role="note" className="mx-auto max-w-sm rounded-xl bg-warning-50 px-3 py-2 text-center text-xs font-medium text-warning-600">
+            {t("app.demoNotice")}
+          </p>
+        ) : process.env.NODE_ENV !== "production" ? (
+          <p className="text-center text-xs text-muted">{t("app.fictionalDataNotice")}</p>
+        ) : null}
       </main>
     </div>
   );

@@ -2,6 +2,8 @@ import { requireStaffPage } from "@/server/auth/actor";
 import { getT } from "@/i18n/server";
 import { AppShell, type NavGroup, type NavItem } from "@/components/layout/app-shell";
 import { ChangePasswordCard } from "@/components/change-password-card";
+import { DemoNotice } from "@/components/demo-notice";
+import { isDemoMode } from "@/lib/runtime-env";
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const actor = await requireStaffPage();
@@ -36,6 +38,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
       groups={groups}
       bottomNav={bottomNav}
       homeHref="/dashboard"
+      notice={isDemoMode() ? <DemoNotice text={t("app.demoNotice")} /> : undefined}
       user={{ name: actor.name, subtitle: actor.roles.map((r) => t(`enum.role.${r}`)).join(", ") }}
     >
       {actor.mustChangePassword ? <ChangePasswordCard mustChange /> : children}

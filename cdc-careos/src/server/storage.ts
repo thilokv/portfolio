@@ -8,10 +8,14 @@
 import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { ALLOWED_UPLOAD_TYPES, MAX_UPLOAD_BYTES } from "@/lib/constants";
+import { isHostedOnVercel } from "@/lib/runtime-env";
 
-const root = path.resolve(process.env.STORAGE_DIR ?? "./storage");
+// Serverless hosts only allow writing to a temporary folder that is wiped
+// regularly, so uploads there are NOT kept (fine for a demo, not for real use).
+const root = path.resolve(process.env.STORAGE_DIR ?? (isHostedOnVercel() ? path.join(tmpdir(), "careos-storage") : "./storage"));
 
 /** Detects the real file type from its first bytes (never trust the browser). */
 export function sniffMime(buf: Buffer): string | null {

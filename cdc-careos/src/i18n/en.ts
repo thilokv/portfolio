@@ -7,6 +7,7 @@ const en = {
     name: "CDC CareOS",
     tagline: "Child development center management",
     fictionalDataNotice: "Demo environment — all records are fictional.",
+    demoNotice: "Demo site: every child, family and staff member here is fictional. Do not enter real information.",
   },
   nav: {
     dashboard: "Dashboard",
@@ -117,6 +118,10 @@ const en = {
     sessionExpired: "Your session has ended. Please sign in again.",
     passwordHint: "At least 10 characters, including letters and numbers.",
     securityNote: "Protected access. Activity is recorded in the audit log.",
+    demoTitle: "Demo accounts",
+    demoHint: "Tap an account to sign in as that person. Every demo account uses the password {password}.",
+    demoParent: "Parent (family portal)",
+    demoAccountProtected: "Demo accounts keep their shared sign-in details so that everyone can use the demo.",
   },
   validation: {
     required: "This field is required.",

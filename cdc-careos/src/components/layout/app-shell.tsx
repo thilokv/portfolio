@@ -127,12 +127,15 @@ export function AppShell({
   bottomNav,
   user,
   homeHref,
+  notice,
   children,
 }: {
   groups: NavGroup[];
   bottomNav: NavItem[];
   user: { name: string; subtitle: string };
   homeHref: string;
+  /** Optional strip above the page content (e.g. the demo-site notice). */
+  notice?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const t = useT();
@@ -176,6 +179,7 @@ export function AppShell({
           </div>
         </header>
 
+        {notice}
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-12 lg:pt-8">{children}</main>
 
         {/* Mobile bottom navigation */}

@@ -4,6 +4,7 @@ import type { Tx } from "@/db";
 import { authSessions, services, staff, staffAvailability, staffRoles, userAccounts } from "@/db/schema";
 import type { AvailabilityInput, ServiceUpdateInput, StaffInput } from "@/lib/validation/admin";
 import { isoDateIST } from "@/lib/dates";
+import { isProtectedDemoAccount } from "@/lib/demo";
 import type { StaffActor } from "../auth/actor";
 import { audit, diff } from "../audit";
 import { hashPassword } from "../auth/crypto";
@@ -96,6 +97,9 @@ export async function updateStaff(tx: Tx, actor: StaffActor, input: StaffInput &
   await tx.update(staff).set(values).where(eq(staff.id, input.id));
   const [account] = await tx.select().from(userAccounts).where(eq(userAccounts.id, before.userId));
   if (account.organizationId !== actor.orgId) throw new ForbiddenError("org");
+  if (account.email.toLowerCase() !== input.email.toLowerCase() && isProtectedDemoAccount(account.email)) {
+    throw new AppError("auth.demoAccountProtected");
+  }
   if (account.email.toLowerCase() !== input.email.toLowerCase()) {
     const [exists] = await tx.select({ id: userAccounts.id }).from(userAccounts).where(sql`lower(${userAccounts.email}) = ${input.email.toLowerCase()}`);
     if (exists) throw new AppError("errors.duplicate");
@@ -120,6 +124,8 @@ export async function setStaffActive(tx: Tx, actor: StaffActor, staffId: string,
   const [s] = await tx.select().from(staff).where(eq(staff.id, staffId));
   if (!s) throw new NotFoundError("staff");
   if (!active) {
+    const [account] = await tx.select({ email: userAccounts.email }).from(userAccounts).where(eq(userAccounts.id, s.userId));
+    if (account && isProtectedDemoAccount(account.email)) throw new AppError("auth.demoAccountProtected");
     const isAdmin = (await tx.select().from(staffRoles).where(and(eq(staffRoles.staffId, staffId), eq(staffRoles.role, "admin")))).length > 0;
     if (isAdmin && (await activeAdminCount(tx, staffId)) === 0) throw new AppError("admin.lastAdmin");
   }
@@ -133,6 +139,8 @@ export async function resetStaffPassword(tx: Tx, actor: StaffActor, staffId: str
   requireManage(actor);
   const [s] = await tx.select().from(staff).where(eq(staff.id, staffId));
   if (!s) throw new NotFoundError("staff");
+  const [account] = await tx.select({ email: userAccounts.email }).from(userAccounts).where(eq(userAccounts.id, s.userId));
+  if (account && isProtectedDemoAccount(account.email)) throw new AppError("auth.demoAccountProtected");
   const password = generateTempPassword();
   await tx
     .update(userAccounts)

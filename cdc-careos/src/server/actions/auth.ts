@@ -6,6 +6,8 @@ import { authDb, withOrg } from "@/db";
 import { passwordResetTokens, userAccounts } from "@/db/schema";
 import { changePasswordSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema } from "@/lib/validation/auth";
 import { isLocale, LOCALE_COOKIE } from "@/i18n";
+import { isProtectedDemoAccount } from "@/lib/demo";
+import { appBaseUrl } from "@/lib/runtime-env";
 import { generateToken, getDummyHash, hashPassword, sha256, verifyPassword } from "../auth/crypto";
 import { createSession, destroySession, getClientIp, readSession, revokeAllSessions } from "../auth/session";
 import { clearRateLimit, consumeRateLimit, isRateLimited, recordRateLimitEvent, RULES } from "../auth/rate-limit";
@@ -116,7 +118,7 @@ export async function forgotPasswordAction(input: unknown): Promise<ActionResult
         tokenHash: sha256(token),
         expiresAt: new Date(Date.now() + 30 * 60_000),
       });
-      const url = `${process.env.APP_URL ?? "http://localhost:3000"}/reset-password?token=${encodeURIComponent(token)}`;
+      const url = `${appBaseUrl()}/reset-password?token=${encodeURIComponent(token)}`;
       await sendMail(user.email, "CDC CareOS password reset", `Use this link within 30 minutes to reset your password:\n${url}\n\nIf you did not request this, ignore this message.`);
       await withOrg({ orgId: user.organizationId }, (tx) =>
         audit(tx, null, { action: "auth.reset_requested", entityType: "user_account", entityId: user.id, changes: { organizationId: user.organizationId } }, ip),
@@ -136,6 +138,7 @@ export async function resetPasswordAction(input: unknown): Promise<ActionResult>
     if (!row) return { ok: false, error: "auth.resetInvalid" };
     const [user] = await authDb.select().from(userAccounts).where(eq(userAccounts.id, row.userId)).limit(1);
     if (!user || !user.isActive) return { ok: false, error: "auth.resetInvalid" };
+    if (isProtectedDemoAccount(user.email)) return { ok: false, error: "auth.demoAccountProtected" };
     await authDb.update(passwordResetTokens).set({ usedAt: new Date() }).where(eq(passwordResetTokens.id, row.id));
     await authDb
       .update(userAccounts)
@@ -158,6 +161,7 @@ export async function changePasswordAction(input: unknown): Promise<ActionResult
     if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
       return { ok: false, error: "auth.invalidCredentials", fieldErrors: { currentPassword: "auth.invalidCredentials" } };
     }
+    if (isProtectedDemoAccount(user.email)) return { ok: false, error: "auth.demoAccountProtected" };
     await authDb
       .update(userAccounts)
       .set({ passwordHash: await hashPassword(password), mustChangePassword: false, passwordChangedAt: new Date() })
