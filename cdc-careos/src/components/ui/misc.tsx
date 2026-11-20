@@ -76,7 +76,7 @@ export function StatCard({
     warning: "bg-warning-50 text-warning-600",
   }[tone];
   return (
-    <div className="flex flex-col rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-[var(--shadow-card)] animate-slide-up">
+    <div className="flex min-w-0 flex-col rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-[var(--shadow-card)] animate-slide-up">
       <div className="flex items-start justify-between gap-2">
         <p className="text-[13px] font-medium leading-snug text-muted">{label}</p>
         {Icon && (
