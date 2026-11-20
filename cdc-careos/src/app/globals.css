@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/noto-sans-telugu";
+
+/*
+ * CDC CareOS design tokens.
+ * Palette: deep navy (primary), soft teal (accent), muted blue (info),
+ * white surfaces on a light neutral grey canvas.
+ */
+@theme {
+  --font-sans: "Plus Jakarta Sans Variable", "Noto Sans Telugu Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy-50: #f2f5f9;
+  --color-navy-100: #e3e9f1;
+  --color-navy-200: #c4d0e0;
+  --color-navy-300: #97abc6;
+  --color-navy-400: #64809f;
+  --color-navy-500: #43617f;
+  --color-navy-600: #304b66;
+  --color-navy-700: #233a52;
+  --color-navy-800: #182b3f;
+  --color-navy-900: #10202f;
+  --color-navy-950: #0a1520;
+
+  --color-teal-50: #effaf8;
+  --color-teal-100: #d5f1ec;
+  --color-teal-200: #ace2d9;
+  --color-teal-300: #7accbf;
+  --color-teal-400: #4cb2a4;
+  --color-teal-500: #33978a;
+  --color-teal-600: #277a70;
+  --color-teal-700: #22625b;
+  --color-teal-800: #1f4f4a;
+
+  --color-sky-50: #f1f6fc;
+  --color-sky-100: #e0ebf8;
+  --color-sky-500: #5b7fb4;
+  --color-sky-600: #476a9d;
+  --color-sky-700: #3b5782;
+
+  --color-canvas: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-line: #e4e8ee;
+  --color-ink: #10202f;
+  --color-muted: #5d6b7c;
+
+  --color-success-50: #eefaf3;
+  --color-success-600: #2a7a50;
+  --color-warning-50: #fdf7ea;
+  --color-warning-600: #9a6512;
+  --color-danger-50: #fdf1f1;
+  --color-danger-600: #b23a3a;
+
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 2px rgb(16 32 47 / 0.04), 0 2px 8px -2px rgb(16 32 47 / 0.06);
+  --shadow-raised: 0 4px 24px -6px rgb(16 32 47 / 0.14);
+
+  --animate-fade-in: fade-in 220ms ease-out both;
+  --animate-slide-up: slide-up 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+  }
+  :lang(te) body, [lang="te"] {
+    line-height: 1.65;
+  }
+  ::selection {
+    background: var(--color-teal-100);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-teal-500);
+    outline-offset: 2px;
+  }
+  input, select, textarea, button {
+    font: inherit;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}
