@@ -26,20 +26,32 @@ Cost: ~₹500–1,500/month (e.g. a 2 GB VPS in Mumbai). Simplest for private fi
 8. Nginx reverse proxy to `localhost:3000`, `client_max_body_size 12m;`, then `certbot --nginx` for HTTPS.
 9. Cron a daily `npm run db:backup` (with `ENV_FILE`, `BACKUP_PASSPHRASE_FILE`, `BACKUP_DIR`) and copy to off-site storage.
 
-## Option B: Vercel (app) + Supabase (PostgreSQL)
+## Option B: Vercel (app) + Neon Postgres (automatic setup)
 
-Free/low tiers are available, but check current pricing and data-residency terms first.
+Everything is done in the Vercel website; no keys or connection strings are typed by hand. Free tiers are available (check current pricing). **Vercel's free Hobby plan is for non-commercial use**: fine for a demo or evaluation, but a center using CareOS for real needs a paid plan or Option A.
 
-1. **Supabase**: create a project in the Mumbai region. In SQL editor create the two roles exactly as above (`careos_app` with `NOBYPASSRLS`). Use the *direct* or *session pooler* connection string (port 5432) for migrations and the *transaction pooler* for the app if needed. Set `DATABASE_SSL=true`.
-2. Run migrations from your computer: `DATABASE_OWNER_URL=… DATABASE_APP_ROLE=careos_app node --conditions=react-server --import tsx scripts/migrate.ts`.
-3. **Do not** expose the Supabase anon/service keys to the browser — CareOS does not use the Supabase client SDK; only the server connects with `DATABASE_URL`.
-4. **File storage**: Vercel's filesystem is not persistent. Before using documents on Vercel, implement a Supabase Storage/S3 driver in `src/server/storage.ts` (same three functions: `putObject`, `getObject`, validation) using a **private** bucket and the service key **server-side only**. (Listed in ROADMAP.)
-5. **Vercel**: import the repo, set root directory `cdc-careos`, add environment variables (Production only), deploy. Set the region to `bom1` (Mumbai).
-6. Backups: Supabase daily backups (paid tier) **plus** your own `pg_dump` via `scripts/backup.sh` from a trusted machine.
+1. **Create the project.** In Vercel choose *Add New → Project*, import the Git repository and set **Root Directory** to `cdc-careos` (skip this when the repository contains only CareOS). For a public demo with the fictional demo center, add the environment variable `CAREOS_DEMO_MODE` = `true` (leave it out for a real center). Press **Deploy**. The first deployment has no database yet, so the site opens on a *Finish setup* page; that is expected.
+2. **Add the database.** In the project open **Storage → Create Database → Neon**, choose the free plan, keep the suggested region and connect it to the project (all environments).
+3. **Redeploy.** *Deployments* → ⋯ on the newest deployment → **Redeploy**.
+
+What the build does (`npm run vercel-build` → `scripts/vercel-build.ts`):
+- Uses the database **owner** connection that the Neon integration provides (`DATABASE_URL_UNPOOLED`) only for setup: it creates the restricted runtime role `careos_app` (no `BYPASSRLS`, owns nothing), applies migrations and grants, and **refuses to finish** if that role could bypass Row Level Security.
+- The running app always signs in as `careos_app`, never as the owner. Its password is derived from the owner password (HMAC-SHA256), so there is no extra secret to store.
+- All database connections use TLS with certificate verification.
+- With `CAREOS_DEMO_MODE=true`, loads the fictional demo center **only if the database has no organizations**. Demo mode also shows a "fictional data" banner on every page, offers the demo accounts on the sign-in page, and stops anyone changing the shared demo accounts' e-mail, password or active status.
+- Safe to repeat on every deployment (migrations are versioned; concurrent builds are serialized with an advisory lock).
+
+Limitations on Vercel (serverless):
+- **Uploaded documents are not kept**: they go to a temporary folder. Before using documents for real, implement a private object-storage driver in `src/server/storage.ts` (see ROADMAP).
+- Requests are limited to about 4.5 MB, so larger uploads fail even though CareOS allows 10 MB.
+- The Neon integration also places the owner connection string in the app's runtime environment (Vercel cannot limit it to the build). For a real center prefer Option A, or set `DATABASE_URL` (runtime role) and `DATABASE_OWNER_URL` yourself and run migrations from a trusted machine.
+- Data location: pick a region that matches your legal advice (DPDP). The demo uses fictional data only.
+
+**Supabase instead of Neon:** CareOS is plain PostgreSQL, so Supabase works with explicit settings (`DATABASE_URL` for `careos_app`, `DATABASE_OWNER_URL`, `DATABASE_SSL=true`). Supabase's certificates are signed by Supabase's own certificate authority, so the server needs that CA certificate (for example via `NODE_EXTRA_CA_CERTS`). Migrations revoke the Supabase HTTP-API roles (`anon`, `authenticated`) from CareOS tables. Never expose Supabase keys to the browser; CareOS does not use the Supabase client SDK.
 
 ## Environment variables
 
-See `.env.example`. Secrets (`DATABASE_*`, `ANTHROPIC_API_KEY`) must only be set in the host's secret store, never committed, never prefixed with `NEXT_PUBLIC_`.
+See `.env.example`. Secrets (`DATABASE_*`, `ANTHROPIC_API_KEY`) must only be set in the host's secret store, never committed, never prefixed with `NEXT_PUBLIC_`. On Vercel with the Neon integration, no database variables need to be set by hand; `APP_URL` defaults to the project's production address.
 
 ## E-mail (password reset)
 

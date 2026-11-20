@@ -11,5 +11,6 @@ Approach used:
 1. `enum.domain.*`, `enum.assistance.*`, `workflow.*` — clinical vocabulary.
 2. `portal.*`, `auth.*`, `validation.*` — text parents read.
 3. `children.consent*`, `communication.teReviewHint` — consent and legal wording.
+4. `app.demoNotice`, `auth.demo*` — demo-site notices (added for the public demo; machine-drafted, not yet reviewed).
 
 Edit `te.ts`, run `npm test` (parity check) and redeploy. Content written by staff (reports/messages) is separate and always reviewed before sharing.

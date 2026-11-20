@@ -45,11 +45,16 @@ Demo accounts (password `CareOS-Demo-2026`, local demo only):
 
 If you cannot use the setup script, copy `.env.example` to `.env.local` and fill in the values yourself (see comments in the file).
 
+## Put it online (Vercel + Neon)
+
+Import the repository in Vercel with Root Directory `cdc-careos`, add a Neon database from the project's Storage tab and redeploy. The build creates the tables, security rules and restricted database role by itself. For a public demo set `CAREOS_DEMO_MODE=true` (fictional data only). Step-by-step instructions and limitations: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md#option-b-vercel-app--neon-postgres-automatic-setup).
+
 ## Scripts
 
 | Command | Purpose |
 |---|---|
 | `npm run dev` / `build` / `start` | Develop / production build / run production server |
+| `npm run vercel-build` | Hosted build: database setup (`scripts/vercel-build.ts`), then `next build` |
 | `npm run typecheck` · `npm run lint` | TypeScript and ESLint |
 | `npm test` | Unit + database integration tests (uses `.env.test`) |
 | `npm run test:e2e` | Playwright end-to-end tests against a production build (resets the **test** DB) |

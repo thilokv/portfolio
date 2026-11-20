@@ -1,21 +1,38 @@
 # Test Results
 
-Recorded on 2026-11-19 (Linux container, Node 22, PostgreSQL 16.15, Chromium via Playwright 1.63). All commands were actually run; output summarised below.
+Last recorded on 2026-11-20 (Linux container, Node 22, PostgreSQL 16, Chromium via Playwright 1.63). All commands were actually run; output summarised below.
 
 | Check | Command | Result |
 |---|---|---|
 | TypeScript | `npm run typecheck` | ✅ no errors |
 | ESLint | `npm run lint` | ✅ 0 problems |
-| Unit + integration | `npm test` | ✅ 8 files, **74 / 74 passed** |
-| Production build | `npm run build` | ✅ compiled, 29 routes (all dynamic) |
+| Unit + integration | `npm test` | ✅ 10 files, **90 / 90 passed** |
+| Production build | `npm run build` (run by the E2E suite) | ✅ compiled, all routes dynamic |
 | End-to-end | `npm run test:e2e` | ✅ **14 / 14 passed** (desktop Chrome + Android Pixel 7 emulation) |
-| Backup round-trip | `npm run db:backup` + decrypt + `pg_restore --list` | ✅ encrypted dump readable |
+| Hosted deployment (Vercel + Neon), simulated | see below | ✅ all checks passed |
+| Backup round-trip (2026-11-19) | `npm run db:backup` + decrypt + `pg_restore --list` | ✅ encrypted dump readable |
 
 Integration tests run against a real PostgreSQL test database **as the restricted runtime role**, so Row Level Security, triggers, exclusion constraints and composite foreign keys are exercised for real.
 
 ## Bugs found by the tests and fixed
 1. `parent_messages.direction` was `varchar(12)` but `"from_guardian"` is 13 characters — parent feedback and contact updates would have failed. Fixed by migration `0003` (policies dropped/re-created around the type change).
 2. AI de-identification replaced names before e-mail addresses, leaving `[NAME]@example.com`. E-mails are now redacted first.
+3. The sign-in page always said "Demo environment — all records are fictional", even on a real installation. It now appears only in development and in demo mode.
+
+## Hosted deployment simulation (2026-11-20)
+
+Vercel and Neon cannot be reached from the test machine, so their behaviour was reproduced locally: a clean copy of the committed code (`git archive` + `npm ci`, no `.env` files), `VERCEL=1`, the Neon integration's variable names, a non-superuser database owner with `CREATEROLE` (like Neon's), and a PostgreSQL server that requires a certificate signed by a test CA (so TLS verification is genuinely exercised).
+
+| Step | Result |
+|---|---|
+| `npm run vercel-build` with **no database** | ✅ build succeeds; every page redirects to `/setup` with the instructions; `/api/health` → 503 |
+| `npm run vercel-build` with the database connected | ✅ restricted role created, migrations + grants applied, role guard passed, fictional demo center loaded; owner name/password absent from the log |
+| Running app, phone emulation (Pixel 7) — 11 checks | ✅ demo accounts + banner on sign-in, one-tap coordinator sign-in, dashboard (10 children, 8 appointments today), no sideways scrolling, children list, demo password change refused, one-tap parent sign-in to the portal |
+| Database view of the running app | ✅ connections use the restricted role over TLS 1.3; with no organization context it sees 0 children; it cannot update the audit log, drop/create tables or delete children |
+| Second build (like a redeploy) | ✅ idempotent: role password re-set to the same value, no duplicate demo data (1 organization) |
+| Role guard refusal cases | ✅ refuses the table owner and a role that is a member of the owner; accepts `careos_app` (also covered by `tests/integration/deployment.test.ts`) |
+
+Afterwards the simulation database, roles and certificates were removed and the server's TLS settings restored.
 
 ## Unit & integration tests (Vitest)
 

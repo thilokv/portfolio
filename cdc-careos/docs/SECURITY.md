@@ -28,6 +28,15 @@ Legend: ✅ implemented & tested · 🟡 implemented, needs configuration at dep
 - ✅ Composite foreign keys prevent cross-organization references; with no org context the app role sees zero rows (tested).
 - ✅ Audit log is append-only (trigger + no UPDATE/DELETE grant).
 
+## Hosted deployment (Vercel + Neon)
+- ✅ The app never connects as the database owner. The build creates the restricted runtime role, applies grants and **stops the deployment** if that role is a superuser, has `BYPASSRLS`/`CREATEROLE`/`CREATEDB`, or owns (or is a member of the owner of) any CareOS table (tested, including the refusal cases).
+- ✅ Hosted database connections always use TLS with certificate verification (tested against a database requiring a CA-signed certificate).
+- ✅ The runtime role's password is derived from the owner password (HMAC-SHA256), so no additional secret is stored; it never appears in build logs.
+- ✅ HTTP-API roles that some hosts add (`anon`, `authenticated`) are revoked from CareOS tables.
+- 🟡 Uploaded documents are kept only temporarily on serverless hosting — implement a private storage driver before real use.
+- 🟡 The Neon integration exposes the owner connection string to the running app's environment. For real use prefer explicit `DATABASE_URL`/`DATABASE_OWNER_URL` (see DEPLOYMENT.md).
+- ⛔ `CAREOS_DEMO_MODE=true` is for public demos with fictional data only: the demo password is public. For a real center use a **new, empty database** with demo mode off, then create the first administrator.
+
 ## Input, output and transport
 - ✅ Zod validation on client and server for every mutation; parameterized SQL only (Drizzle).
 - ✅ Errors shown to users are generic translated messages; internals are logged server-side only.

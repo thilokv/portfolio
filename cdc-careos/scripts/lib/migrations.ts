@@ -57,13 +57,14 @@ export async function ensureAppRole(client: Client, appRole: string, password: s
 /**
  * Refuses to continue if the runtime role could bypass Row Level Security:
  * it must not be a superuser, have BYPASSRLS, create roles/databases, or own
- * any CareOS table (owners bypass RLS).
+ * any CareOS table — directly or through membership of the owning role
+ * (owners and their members bypass RLS).
  */
 export async function assertRestrictedRole(client: Client, appRole: string): Promise<void> {
   const { rows } = await client.query<{ rolsuper: boolean; rolbypassrls: boolean; rolcreaterole: boolean; rolcreatedb: boolean; owned: number }>(
     `SELECT r.rolsuper, r.rolbypassrls, r.rolcreaterole, r.rolcreatedb,
             (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
-              WHERE n.nspname = 'public' AND c.relowner = r.oid) AS owned
+              WHERE n.nspname = 'public' AND pg_has_role(r.oid, c.relowner, 'MEMBER')) AS owned
        FROM pg_roles r WHERE r.rolname = $1`,
     [appRole],
   );
